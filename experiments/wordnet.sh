@@ -15,7 +15,7 @@ STAGES=(${STAGES[*]})
 
 VIEWS=(bert roberta electra deberta)
 MODEL_IDS="bert-base-uncased;roberta-base;google/electra-base-discriminator;microsoft/deberta-v3-base"
-COMMON=(--kg-csv "$KG_CSV" --train-ratio 0.6 --val-ratio 0.2 --test-ratio 0.2 --epochs 50 --batch-size 1024 --d 128)
+COMMON=(--kg-csv "$KG_CSV" --train-ratio 0.7 --val-ratio 0.1 --test-ratio 0.2 --epochs 100 --batch-size 1024 --d 128)
 PNKG=("${COMMON[@]}" --model-ids "$MODEL_IDS" --pooling mean --max-length 32 --emb-dir cache/wordnet_emb)
 
 has() { [[ " ${STAGES[*]} " == *" $1 "* ]]; }
