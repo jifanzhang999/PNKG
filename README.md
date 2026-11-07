@@ -27,6 +27,7 @@ Tested with Python 3.14 and CUDA GPUs. Results are deterministic for a fixed see
 | `run.py` | one WordNet run (PNKG or a KGE baseline) |
 | `scripts/` | data preparation, RENKI-KG training, weight search, summaries and plots |
 | `experiments/` | the full WordNet and RENKI-KG experiments |
+| `final_simulations.ipynb` | simulations of multi-view kernel PCA recovery, view weighting and downstream risk |
 
 ## WordNet
 
@@ -81,3 +82,30 @@ components, and trains on a 70/10/20 edge split for 10 seeds:
 - `transe`, `distmult`, `complex`, `rotate`: KGE baselines.
 
 Per-seed results go to `results/renki/<config>.csv` and the plot to `figures/renki.pdf`.
+
+## Simulations
+
+`final_simulations.ipynb` runs the simulation study on synthetic data, so it needs no downloads. It uses the
+linear-kernel, row-wise information-plus-noise model $E_s = V_s + m_s^{-1/2}\Xi_s$ with $N=60$ entities,
+latent rank $d=4$ and $S=4$ views, and estimates the shared coordinates as the top-$d$ eigenvectors of
+$\sum_s w_s E_s E_s^\top / N$.
+
+1. **Subspace recovery vs. entity-code dimension.** Sweeps a common $m \in \{50,\dots,800\}$ under isotropic and
+   anisotropic row noise and compares $\lVert\sin\Theta(\widehat Z, Z_\star)\rVert_{\mathrm{op}}$ with the
+   $m^{-1/2}$ rate.
+2. **Observable inverse-variance weighting.** With heterogeneous views $(m_1,\dots,m_4) = (800,400,200,100)$, it
+   compares uniform weights, the plug-in inverse-variance weights of Appendix D (estimated from the observed
+   $E_s$ only) and a ground-truth grid-search oracle (used for evaluation only).
+3. **End-to-end supervised risk.** Trains relation heads on top of the pretrained coordinates and on the true
+   coordinates and plots test MSE against the number of labeled triples $n$, the pretraining dimension $m$ and
+   the head size $W$.
+
+Open it in Jupyter, or run it end to end with
+
+```bash
+jupyter nbconvert --to notebook --execute final_simulations.ipynb
+```
+
+Figures for Experiments 1–2 go to `figs_entity_kernel/` and figures for Experiment 3 go
+to `figures/`. Experiment 3 trains with PyTorch and runs 20 seeds in parallel (`N_JOBS = 20`); lower `N_JOBS`
+on machines with fewer cores.
